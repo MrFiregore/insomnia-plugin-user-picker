@@ -30,6 +30,13 @@ Current user password: The password of the selected user;
 
 ![Dropdown menu](https://raw.githubusercontent.com/gabrieljsilva/insomnia-plugin-user-picker/master/src/assets/screenshot-4.png)
 
+## Editing a user
+You can edit a user by clicking on the Document menu again and then on "Edit User".
+
+![Dropdown menu](./src/assets/screenshot-7.png)
+
+After that, a modal will appear with a list of identifiers. Just click on the profile that you want to edit and complete the steps.
+
 ## Deleting a user
 You can delete a user by clicking on the Document menu again and then on "Delete User".
 
