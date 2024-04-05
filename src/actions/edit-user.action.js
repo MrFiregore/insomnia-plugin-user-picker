@@ -1,6 +1,7 @@
-const { findUserByIdentifier, saveUser } = require('../service')
+const { findUserByIdentifier } = require('../service')
 const { Persistor } = require('../persistor')
 const { USER_STORE_KEY } = require('../constants/persistor-keys.contants')
+const updateUserByIdentifier = require('../service/update-user-by-identifier')
 
 module.exports = (scope) => {
   return {
@@ -9,10 +10,9 @@ module.exports = (scope) => {
     action: async (context, data) => {
       // We obtain the list of stored users
       const users = Persistor.getItem(USER_STORE_KEY) || []
-      console.log('Users:', users)
 
       // We display a prompt with hints to select the user to edit.
-      const identifier = await context.app.prompt('Choose user to edit', {
+      const originalIdentifier = await context.app.prompt('Choose user to edit', {
         title: 'Select a user to edit',
         label: 'Available Users',
         // The options available for selection
@@ -21,7 +21,7 @@ module.exports = (scope) => {
         placeholder: 'Type or select the identifier'
       })
 
-      const userToEdit = findUserByIdentifier(identifier.trim())
+      const userToEdit = findUserByIdentifier(originalIdentifier.trim())
       if (!userToEdit) {
         alert('User not found. Please select a valid user.')
         return
@@ -35,6 +35,14 @@ module.exports = (scope) => {
         inputType: 'text'
       })
 
+      // Edit the identifier
+      const identifier = await context.app.prompt('Edit Identifier', {
+        title: 'Edit Identifier',
+        defaultValue: userToEdit.identifier,
+        label: 'Identifier',
+        inputType: 'text'
+      })
+
       // Edit the user's password
       const password = await context.app.prompt('Edit User Password', {
         title: 'Edit User Password',
@@ -45,11 +53,11 @@ module.exports = (scope) => {
 
       // Here we proceed to save the edited user
       // We assume that the identifier does not change.
-      await saveUser({
+      await updateUserByIdentifier({
         name,
-        identifier: userToEdit.identifier,
+        identifier,
         password
-      })
+      }, userToEdit.identifier)
 
       // We synchronize the status
       scope.sync()

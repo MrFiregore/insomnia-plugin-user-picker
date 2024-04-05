@@ -5,10 +5,9 @@ const {
   SELECTED_USER
 } = require('../constants/persistor-keys.contants')
 
-module.exports = async (user) => {
-  const { identifier } = user
+module.exports = async (user, identifier) => {
   const users = await findAllUsers()
-  const userIndex = users.findIndex((user) => (user.identifier = identifier))
+  const userIndex = users.findIndex((user) => user.identifier === identifier)
   users[userIndex] = user
 
   const selectedUser = Persistor.getItem(SELECTED_USER)
