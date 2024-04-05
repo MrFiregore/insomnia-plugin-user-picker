@@ -1,7 +1,21 @@
 {
   "name": "insomnia-plugin-user-picker",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": false,
+  "author": {
+    "name": "Gabriel Silva",
+    "url": "https://www.gabrieljs.dev/"
+  },
+  "contributors": [
+    {
+      "name": "Firegore",
+      "url": "https://github.com/MrFiregore"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrieljsilva/insomnia-plugin-user-picker.git"
+  },
   "insomnia": {
     "name": "User Picker",
     "description": "Register a user list and select it from the template tags",
