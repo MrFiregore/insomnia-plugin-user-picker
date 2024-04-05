@@ -11,56 +11,65 @@ module.exports = (scope) => {
       // We obtain the list of stored users
       const users = Persistor.getItem(USER_STORE_KEY) || []
 
-      // We display a prompt with hints to select the user to edit.
-      const originalIdentifier = await context.app.prompt('Choose user to edit', {
-        title: 'Select a user to edit',
-        label: 'Available Users',
-        // The options available for selection
-        hints: users.map(user => user.identifier),
-        inputType: 'hidden',
-        placeholder: 'Type or select the identifier'
-      })
+      /**
+       * @param {{name,identifier,password}} user
+       * @param {HTMLElement} modal
+       */
+      const handleUserClicked = async (user, modal) => {
+        const closeDialog = () => modal.querySelector('.modal__header button').click()
+        closeDialog()
 
-      const userToEdit = findUserByIdentifier(originalIdentifier.trim())
-      if (!userToEdit) {
-        alert('User not found. Please select a valid user.')
-        return
+        const userToEdit = findUserByIdentifier(user.identifier)
+
+        // Edit the username
+        const name = await context.app.prompt('Edit Username', {
+          title: 'Edit User Name',
+          defaultValue: userToEdit.name,
+          label: 'Username',
+          inputType: 'text'
+        })
+
+        // Edit the identifier
+        const identifier = await context.app.prompt('Edit Identifier', {
+          title: 'Edit Identifier',
+          defaultValue: userToEdit.identifier,
+          label: 'Identifier',
+          inputType: 'text'
+        })
+
+        // Edit the user's password
+        const password = await context.app.prompt('Edit User Password', {
+          title: 'Edit User Password',
+          defaultValue: userToEdit.password,
+          label: 'Password',
+          inputType: 'text'
+        })
+
+        // Here we proceed to save the edited user
+        // We assume that the identifier does not change.
+        await updateUserByIdentifier({
+          name,
+          identifier,
+          password
+        }, userToEdit.identifier)
+
+        // We synchronize the status
+        scope.sync()
       }
 
-      // Edit the username
-      const name = await context.app.prompt('Edit Username', {
-        title: 'Edit User Name',
-        defaultValue: userToEdit.name,
-        label: 'Username',
-        inputType: 'text'
+      const container = document.createElement('div')
+      users.forEach((user) => {
+        const userButton = document.createElement('button')
+        userButton.className = 'btn btn--outlined btn--super-duper-compact margin-right-sm margin-top-sm inline-block'
+        userButton.innerText = user.identifier
+        userButton.onclick = (el) => {
+          handleUserClicked(user, el.currentTarget.closest('.modal__content__wrapper'))
+        }
+        container.append(
+          userButton
+        )
       })
-
-      // Edit the identifier
-      const identifier = await context.app.prompt('Edit Identifier', {
-        title: 'Edit Identifier',
-        defaultValue: userToEdit.identifier,
-        label: 'Identifier',
-        inputType: 'text'
-      })
-
-      // Edit the user's password
-      const password = await context.app.prompt('Edit User Password', {
-        title: 'Edit User Password',
-        defaultValue: userToEdit.password,
-        label: 'Password',
-        inputType: 'text'
-      })
-
-      // Here we proceed to save the edited user
-      // We assume that the identifier does not change.
-      await updateUserByIdentifier({
-        name,
-        identifier,
-        password
-      }, userToEdit.identifier)
-
-      // We synchronize the status
-      scope.sync()
+      context.app.dialog('Choose user to edit', container)
     }
   }
 }
